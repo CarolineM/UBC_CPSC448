@@ -1,0 +1,35 @@
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Image Pixel Manipulation</title>
+	</head>
+	<body>
+		<canvas id="canvas" width="400" height="400"></canvas>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="ImagePixelManipulation.js"></script>
+		<script>
+		$(document).ready(function() 
+		{
+			var canvas = document.getElementById('canvas');
+			canvas.height = 900;
+			canvas.width = 700;
+			
+			var context = canvas.getContext('2d');
+			var image = new Image();
+			image.src = "dhalsim.jpg";
+			
+			// Everyone likes drop shadows!
+			context.shadowBlur = 20;
+			context.shadowColor = "rgb(0, 0, 0)";
+			
+			$(image).load(function() {
+				context.drawImage(image, 0, 0);
+				// can also use context.drawImage(image, x, y, width, height); to draw with preset size
+				// can also use context.drawImage(image, cropSourceX, cropSourceY, cropWidth, cropHeight, drawX, drawY, drawWidth, drawHeight); to crop and then draw with preset size
+			});
+		});	
+		
+		</script>
+	</body>
+</html>

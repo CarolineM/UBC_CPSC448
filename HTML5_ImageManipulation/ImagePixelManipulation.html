@@ -7,6 +7,7 @@
 	<body>
 		<canvas id="canvas" width="400" height="400"></canvas>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="utils.js"></script>
 		<script src="ImagePixelManipulation.js"></script>
 		<script>
 		$(document).ready(function() 
@@ -27,6 +28,13 @@
 				context.drawImage(image, 0, 0);
 				// can also use context.drawImage(image, x, y, width, height); to draw with preset size
 				// can also use context.drawImage(image, cropSourceX, cropSourceY, cropWidth, cropHeight, drawX, drawY, drawWidth, drawHeight); to crop and then draw with preset size
+			
+			(function drawFrame () {
+				window.requestAnimationFrame(drawFrame, canvas);
+				context.clearRect(0, 0, canvas.width, canvas.height);
+				draw(image, context);
+			}());
+			
 			});
 		});	
 		

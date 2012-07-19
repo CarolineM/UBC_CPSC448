@@ -32,9 +32,9 @@
 			
 				context.drawImage(image, 0, 0);
 				
-				var imageData = context.getImageData(0, 0, 700,900);
-				var data = imageData.data;		// data is an array of pixel values.  e.g. data[0], data[1], data[2], and data[3] represent the R, G, B, and Alpha values of the first pixel.
-				
+				var imageData = context.getImageData(0, 0, 700,900),
+				data = imageData.data,		// data is an array of pixel values.  e.g. data[0], data[1], data[2], and data[3] represent the R, G, B, and Alpha values of the first pixel.
+				length = data.length;
 				
 				/*
 				 * Algorithm for Colour Cycling:
@@ -45,14 +45,18 @@
 				(function drawFrame () {
 					window.requestAnimationFrame(drawFrame, canvas);
 					
-					for (var i = 0; i < data.length; i+=4)
+					imageData = context.getImageData(0, 0, 700,900);
+					data = imageData.data;
+					
+					for (var i = 0; i < length; i+=4)
 					{
 						if ( inColourRange(data[i], data[i+1], data[i+2]) )
 						{
-							data[i+3] = 0;  // sets the alpha value of selected pixels to 0
+							data[i+3] = 0;
 						}					
 					}
 					
+					imageData.data = data;
 					context.putImageData(imageData, 0, 0);
 					
 				}());

@@ -13,10 +13,10 @@ function onMouseClick(e) {
  * pixel falls within the hard-coded colour range.
  */
  var redUpperLimit = 255;
- var redLowerLimit = 235;
+ var redLowerLimit = 225;
  var greenUpperLimit = 230;
  var greenLowerLimit = 175;
- var blueUpperLimit = 108;
+ var blueUpperLimit = 120;
  var blueLowerLimit = 65;
 function inColourRange(red, green, blue)
 {

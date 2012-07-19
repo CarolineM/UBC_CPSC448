@@ -13,8 +13,8 @@
 		$(document).ready(function() 
 		{
 			var canvas = document.getElementById('canvas');
-			canvas.height = 900;
 			canvas.width = 700;
+			canvas.height = 900;
 			
 			var context = canvas.getContext('2d');
 			var image = new Image();
@@ -24,39 +24,38 @@
 			context.shadowBlur = 20;
 			context.shadowColor = "rgb(0, 0, 0)";
 			
+			// Register a click handler for the canvas
+			canvas.addEventListener("click", onMouseClick, false);
+			
+			// When the image tag has been fully loaded...
 			$(image).load(function() {
-				// can also use context.drawImage(image, x, y, width, height); to draw with preset size
-				// can also use context.drawImage(image, cropSourceX, cropSourceY, cropWidth, cropHeight, drawX, drawY, drawWidth, drawHeight); to crop and then draw with preset size
+			
 				context.drawImage(image, 0, 0);
-			 
-				var imageData = context.createImageData(900,700);
-				var pixel = imageData.data; // CanvasPixelArray
+				
+				var imageData = context.getImageData(0, 0, 700,900);
+				var data = imageData.data;		// data is an array of pixel values.  e.g. data[0], data[1], data[2], and data[3] represent the R, G, B, and Alpha values of the first pixel.
+				
 				
 				/*
-				Algorithm for Colour Cycling:
-				1.) Pick a palette range that represents the colours you want to cycle
-				2.) For each pixel that falls within the palette range, create a reference to it and cycle it from the darkest colour in that range to the lightest colour in that range.
+				 * Algorithm for Colour Cycling:
+				 * 1.) Pick a palette range that represents the colours you want to cycle
+				 * 2.) Collect those pixels into an array so we only work on a subset of the image's pixels
+				 * 3.) For each pixel in that array, cycle it by blending it back and forth between the two colours in that range
 				*/
-				
-				// Animation loop goes in here
 				(function drawFrame () {
-					// We'll bootstrap the code below to perform our colour cycling
-					//window.requestAnimationFrame(drawFrame, canvas);
-					//context.clearRect(0, 0, canvas.width, canvas.height);
-					//draw(image, context);
+					window.requestAnimationFrame(drawFrame, canvas);
+					
+					for (var i = 0; i < data.length; i+=4)
+					{
+						if ( inColourRange(data[i], data[i+1], data[i+2]) )
+						{
+							data[i+3] = 0;  // sets the alpha value of selected pixels to 0
+						}					
+					}
+					
+					context.putImageData(imageData, 0, 0);
+					
 				}());
-			});
-			
-			canvas.click(function(e) {
-				var canvasOffset = canvas.offset();
-				var canvasX = Math.floor(e.pageX-canvasOffset.left);
-				var canvasY = Math.floor(e.pageY-canvasOffset.top);
-				
-				var imageData = context.getImageData(canvasX, canvasY, 1, 1);
-				var pixel = imageData.data;
-				var pixelColor = "rgba("+pixel[0]+", "+pixel[1]+", "+pixel[2]+", "+pixel[3]+")";
-				
-				$("body").css("backgroundColor", pixelColor);
 			});
 		});	
 		

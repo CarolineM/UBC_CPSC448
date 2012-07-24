@@ -8,7 +8,6 @@
 		<canvas id="canvas" width="400" height="400"></canvas>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		<script src="utils.js"></script>
-		<script src="ImagePixelManipulation.js"></script>
 		<script>
 		$(document).ready(function() 
 		{
@@ -24,8 +23,10 @@
 			context.shadowBlur = 20;
 			context.shadowColor = "rgb(0, 0, 0)";
 			
-			// Register a click handler for the canvas
-			canvas.addEventListener("click", onMouseClick, false);
+			var directionArray = [];
+			
+			// Don't Register a click handler for the canvas
+			//canvas.addEventListener("click", onMouseClick, false);
 			
 			// When the image tag has been fully loaded...
 			$(image).load(function() {
@@ -36,23 +37,34 @@
 				data = imageData.data,		// data is an array of pixel values.  e.g. data[0], data[1], data[2], and data[3] represent the R, G, B, and Alpha values of the first pixel.
 				length = data.length;
 				
-				/*
-				 * Algorithm for Colour Cycling:
-				 * 1.) Pick a palette range that represents the colours you want to cycle
-				 * 2.) Collect those pixels into an array so we only work on a subset of the image's pixels
-				 * 3.) For each pixel in that array, cycle it by blending it back and forth between the two colours in that range
-				*/
+				// Creates an array that's 1/4th the size of data, keeps track of the colourCycling direction
+				for (var j = 0; j< length; j+=4)
+				{
+					if ( inColourRange(data[j], data[j+1], data[j+2]) )
+						directionArray[j/4] = 1;
+					else
+						directionArray[j/4] = -1;
+				}
+				
 				(function drawFrame () {
 					window.requestAnimationFrame(drawFrame, canvas);
 					
 					imageData = context.getImageData(0, 0, 700,900);
 					data = imageData.data;
+					//incrementRGBCounters();
 					
 					for (var i = 0; i < length; i+=4)
 					{
-						if ( inColourRange(data[i], data[i+1], data[i+2]) )
+						//if ( inColourRange(data[i], data[i+1], data[i+2]) )
+						if ( directionArray[i/4] != -1 )
 						{
-							data[i+3] = 0;
+							/*data[i] = cycleRedChannel(data[i]);
+							data[i+1] = cycleGreenChannel(data[i+1]);
+							data[i+2] = cycleBlueChannel(data[i+2]);*/
+							var nextColour = getNextColour(directionArray, i/4, data[i], data[i+1], data[i+2]);
+							data[i] = nextColour[0];
+							data[i+1] = nextColour[1];
+							data[i+2] = nextColour[2];
 						}					
 					}
 					
@@ -63,5 +75,6 @@
 		});	
 		
 		</script>
+		<script src="ImagePixelManipulation.js"></script>
 	</body>
 </html>

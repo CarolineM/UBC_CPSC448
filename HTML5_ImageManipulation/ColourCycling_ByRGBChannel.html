@@ -1,0 +1,59 @@
+
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Image Pixel Manipulation</title>
+	</head>
+	<body>
+		<canvas id="canvas" width="400" height="400"></canvas>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="utils.js"></script>
+		<script src="ColourCycling_ByRGBChannel.js"></script>
+		<script>
+		$(document).ready(function() 
+		{
+			var canvas = document.getElementById('canvas');
+			canvas.width = 700;
+			canvas.height = 900;
+			
+			var context = canvas.getContext('2d');
+			var image = new Image();
+			image.src = "assets/dhalsim.jpg";
+			
+			// Everyone likes drop shadows!
+			context.shadowBlur = 20;
+			context.shadowColor = "rgb(0, 0, 0)";
+			
+			// When the image tag has been fully loaded...
+			$(image).load(function() {
+				context.drawImage(image, 0, 0);
+				
+				var imageData = context.getImageData(0, 0, 700,900),
+				data = imageData.data,		// data is an array of pixel values.  e.g. data[0], data[1], data[2], and data[3] represent the R, G, B, and Alpha values of the first pixel.
+				length = data.length;
+				
+				(function drawFrame () {
+					window.requestAnimationFrame(drawFrame, canvas);
+					
+					imageData = context.getImageData(0, 0, 700,900);
+					data = imageData.data;
+					incrementRGBCounters();
+					
+					for (var i = 0; i < length; i+=4)
+					{
+						if ( inColourRange(data[i], data[i+1], data[i+2]) )
+						{
+							data[i] = cycleRedChannel(data[i]);
+							data[i+1] = cycleGreenChannel(data[i+1]);
+							data[i+2] = cycleBlueChannel(data[i+2]);
+						}					
+					}
+					
+					context.putImageData(imageData, 0, 0);
+					
+				}());
+			});
+		});	
+		</script>
+	</body>
+</html>

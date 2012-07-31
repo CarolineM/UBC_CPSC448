@@ -28,8 +28,8 @@ function inColourRange(red, green, blue)
 function incrementRGBCounters()
 {
 	cycleDistanceCounterRed++;
-	cycleDistanceCounterGreen++;
-	cycleDistanceCounterBlue++;
+	//cycleDistanceCounterGreen++;
+	//cycleDistanceCounterBlue++;
 }
 
 var cycleDistanceCounterRed = 0;
@@ -96,7 +96,6 @@ function cycleRedChannel(redValue)
 		
 	return redLowerLimit + 29;
 }
-//return redLowerLimit + Math.floor(Math.random() * (redUpperLimit - redLowerLimit));
 
 function cycleGreenChannel(greenValue)
 {
@@ -116,48 +115,6 @@ function cycleBlueChannel(blueValue)
 		return blueValue - 1;
 		
 	return blueLowerLimit + 29;
-}
-
-var redStepSize = Math.ceil(Math.max(redUpperLimit - redLowerLimit, greenUpperLimit - greenLowerLimit, blueUpperLimit - blueLowerLimit)/(redUpperLimit - redLowerLimit));
-var greenStepSize = Math.ceil(Math.max(redUpperLimit - redLowerLimit, greenUpperLimit - greenLowerLimit, blueUpperLimit - blueLowerLimit)/(greenUpperLimit - greenLowerLimit));
-var blueStepSize = Math.ceil(Math.max(redUpperLimit - redLowerLimit, greenUpperLimit - greenLowerLimit, blueUpperLimit - blueLowerLimit)/(blueUpperLimit - blueLowerLimit));
-function getNextColour(directionArray, pixelIndex, initialRed, initialGreen, initialBlue)
-{
-	var result = [];
-	
-	if ( directionArray[pixelIndex] == 1)
-	{
-		if ((initialRed > (redUpperLimit - redStepSize)) || (initialGreen > (greenUpperLimit - greenStepSize)) || (initialBlue > (blueUpperLimit - blueStepSize)))
-		{
-			directionArray[pixelIndex] = 0;
-			result[0] = initialRed - redStepSize;
-			result[1] = initialGreen - greenStepSize;
-			result[2] = initialBlue - blueStepSize;
-		}
-		else
-		{
-			result[0] = initialRed + redStepSize;
-			result[1] = initialGreen + greenStepSize;
-			result[2] = initialBlue + blueStepSize;
-		}
-	}
-	else if ( directionArray[pixelIndex] == 0)
-	{
-		if ((initialRed < (redLowerLimit + redStepSize)) || (initialGreen < (greenLowerLimit + greenStepSize)) || (initialBlue < (blueLowerLimit + blueStepSize)))
-		{
-			directionArray[pixelIndex] = 1;
-			result[0] = initialRed + redStepSize;
-			result[1] = initialGreen + greenStepSize;
-			result[2] = initialBlue + blueStepSize;
-		}
-		else
-		{
-			result[0] = initialRed - redStepSize;
-			result[1] = initialGreen - greenStepSize;
-			result[2] = initialBlue - blueStepSize;
-		}
-	}
-	return result;
 }
 
 

@@ -25,10 +25,7 @@
 			context.shadowColor = "rgb(0, 0, 0)";
 			
 			var directionArray = [];
-			
-			// Don't Register a click handler for the canvas
-			//canvas.addEventListener("click", onMouseClick, false);
-			
+	
 			// When the image tag has been fully loaded...
 			$(image).load(function() {
 				context.drawImage(image, 0, 0);
@@ -38,25 +35,12 @@
 				length = data.length;
 				
 				// Creates an array that's 1/4th the size of data, keeps track of the colourCycling direction
-				/*for (var j = 0; j< length; j+=4)
+				for (var j = 0; j< length; j+=4)
 				{
 					if ( inColourRange(data[j], data[j+1], data[j+2]) )
 						directionArray[j/4] = 1;
 					else
 						directionArray[j/4] = -1;
-				}*/
-				var activePixels = [];
-				var activePixelIndex = 0;
-				var paletteIndex;
-
-				for (var j = 0; j < length; j+=4)
-				{
-					paletteIndex = inCyclingPalette(data[j], data[j+1], data[j+2]);
-					if ( paletteIndex != -1 )
-					{
-						activePixels[activePixelIndex] = new activePixel(j/4, 1, paletteIndex);
-						activePixelIndex++;
-					}
 				}
 				
 				(function drawFrame () {
@@ -64,33 +48,18 @@
 					
 					imageData = context.getImageData(0, 0, 700,900);
 					data = imageData.data;
-					//incrementRGBCounters();
 					
-					/*for (var i = 0; i < length; i+=4)
+					for (var i = 0; i < length; i+=4)
 					{
-						//if ( inColourRange(data[i], data[i+1], data[i+2]) )
 						if ( directionArray[i/4] != -1 )
 						{
-							/*data[i] = cycleRedChannel(data[i]);
-							data[i+1] = cycleGreenChannel(data[i+1]);
-							data[i+2] = cycleBlueChannel(data[i+2]);*/
-							/*var nextColour = getNextColour(directionArray, i/4, data[i], data[i+1], data[i+2]);
+							var nextColour = getNextColour(directionArray, i/4, data[i], data[i+1], data[i+2]);
 							data[i] = nextColour[0];
 							data[i+1] = nextColour[1];
 							data[i+2] = nextColour[2];
 						}					
-					}*/
-					
-					for (var i = 0; i < activePixels.length; i++)
-					{
-						var currentActivePixel = activePixels[i];
-						var updatedActivePixel = cyclePixel(currentActivePixel);
-						
-						activePixels[i] = updatedActivePixel;
-						data[updatedActivePixel.dataIndex * 4] = cyclingPalette[updatedActivePixel.currentPaletteIndex].red;
-						data[updatedActivePixel.dataIndex * 4 + 1] = cyclingPalette[updatedActivePixel.currentPaletteIndex].green;
-						data[updatedActivePixel.dataIndex * 4 + 2] = cyclingPalette[updatedActivePixel.currentPaletteIndex].blue;	
 					}
+				
 					
 					context.putImageData(imageData, 0, 0);
 					

@@ -1,0 +1,35 @@
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title>Background Easing</title>
+	</head>
+	<link rel="stylesheet" href="Easing.css">	
+	<body>
+		<canvas id="canvas" width="800" height="500"></canvas>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="utils.js"></script>
+		<script src="BackgroundEasing.js"></script>
+		<script>
+			$(document).ready(function() 
+			{
+				var canvas = document.getElementById('canvas'),
+					context = canvas.getContext('2d'), 
+					mouse = utils.captureMouse(canvas),
+					image = new Image();
+				image.src = "assets/1.jpg";
+			
+				// Everyone likes drop shadows!
+				context.shadowBlur = 20;
+				context.shadowColor = "rgb(0, 0, 0)";
+				
+				$(image).load(function() {
+					(function drawFrame () 
+					{
+						window.requestAnimationFrame(drawFrame, canvas);
+						context.drawImage(image, 0, 0);
+					}());
+				});
+			});	
+		</script>
+	</body>
+</html>

@@ -11,6 +11,15 @@ if (!window.requestAnimationFrame) {
 									});
 }
 
+if (!window.cancelRequestAnimationFrame) {
+	window.cancelRequestAnimationFrame = (window.cancelAnimationFrame ||
+										  window.webkitCancelRequestAnimationFrame ||
+										  window.mozCancelRequestAnimationFrame ||
+										  window.oCancelRequestAnimationFrame ||
+										  window.msCancelRequestAnimationFrame ||
+										  window.clearTimeout);
+}
+
 
 utils.captureMouse = function (element) {
 	var mouse = {x: 0, y: 0}

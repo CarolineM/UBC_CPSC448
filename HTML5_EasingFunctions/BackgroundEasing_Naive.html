@@ -1,0 +1,86 @@
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title>Background Easing</title>
+	</head>
+	<link rel="stylesheet" href="Easing.css">	
+	<body>
+		<canvas id="canvas" width="800" height="500"></canvas>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="utils.js"></script>
+			<script src="BackgroundEasing_Naive.js"></script>
+		<script>
+			$(document).ready(function() 
+			{
+				var canvas = document.getElementById('canvas'),
+					context = canvas.getContext('2d'), 
+					canvasWidth = canvas.width,
+					canvasHeight = canvas.height,
+					mouse = utils.captureMouse(canvas),
+					image = new Image(),
+					animationRequest;
+				image.src = "assets/1.jpg";
+				
+				$(image).load(function() {
+
+					context.drawImage(image, image.width/2 - canvasWidth/2, image.height/2 - canvasHeight/2, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+
+					// Set the (x,y) of the initial centered view
+					var currentView = new sceneryView(image.width/2 - canvasWidth/2, image.height/2 - canvasHeight/2);
+
+					canvas.addEventListener('mousedown', translateScenery, false);
+
+					function translateScenery(event)
+					{
+
+						var absolutePosition = $('#canvas').offset();
+
+						if (animationRequest)
+							window.cancelRequestAnimationFrame(animationRequest);
+						
+						// viewRelativeMousePositions take the CURRENT top-left point of
+						// the view to be (0,0).  
+						var viewRelativeMousePositionX = Math.floor(event.x - absolutePosition.left);
+						var viewRelativeMousePositionY = Math.floor(event.y - absolutePosition.top);
+
+						// We want the point we clicked to be the CENTER of the new view (not the top left)
+						var targetX = viewRelativeMousePositionX - canvasWidth/2 + currentView.x;
+						var targetY = viewRelativeMousePositionY - canvasHeight/2 + currentView.y;
+
+						// Limits for targetX and targetY so we don't draw outside the bounds of the image
+						var viewRightLimit = image.width - canvasWidth,
+							viewLeftLimit = 0,
+							viewTopLimit = 0,
+							viewBottomLimit = image.height - canvasHeight;
+
+						// Check to see if targetX/targetY are trying to draw outside the bounds of the image
+						if (targetX >= viewRightLimit)
+							targetX = viewRightLimit - 1;
+						if (targetX < viewLeftLimit)
+							targetX = viewLeftLimit;
+						if (targetY >= viewBottomLimit)
+							targetY = viewBottomLimit - 1;
+						if (targetY < viewTopLimit)
+							targetY = viewTopLimit;
+
+
+						(function drawFrame () {
+							animationRequest = window.requestAnimationFrame(drawFrame, canvas);
+
+							var previousTopLeft = {x: currentView.x, y: currentView.y};
+							var newPosition = currentView.updateView(targetX, targetY);
+
+							if (newPosition.areWeThereYet)
+							{
+								window.cancelRequestAnimationFrame(animationRequest);
+							}
+
+							context.drawImage(image, newPosition.updatedX, newPosition.updatedY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+						}());
+					}
+
+				});
+			});	
+		</script>
+	</body>
+</html>

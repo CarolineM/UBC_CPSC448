@@ -15,15 +15,15 @@ function sceneryView (x, y, tweeningDuration)
 	this.initialY;
 
 	// Corresponds to the total change in X, Y needed for the current tween
-	this.changeInX;
-	this.changeInY;
+	this.totalChangeInX;
+	this.totalChangeInY;
 
 
 	// The total number of animation frames for the tween, 1-indexed.
 	this.totalTweeningFrames = tweeningDuration;
 
 	// The number of the current tweening frame, 1-indexed.
-	this.currentFrameNumber = 1;
+	this.currentFrameNumber = 0;
 
 	this.getNextPosition_LinearTween = function (targetX, targetY, animationRequest)
 	{
@@ -34,12 +34,12 @@ function sceneryView (x, y, tweeningDuration)
 			this.initialX = this.x;
 			this.initialY = this.y;
 
-			this.changeInX = targetX - this.initialX;
-			this.changeInY = targetY - this.initialY;
+			this.totalChangeInX = targetX - this.initialX;
+			this.totalChangeInY = targetY - this.initialY;
 		}
 
-		this.x = this.changeInX * this.currentFrameNumber / this.totalTweeningFrames + this.initialX;
-		this.y = this.changeInY * this.currentFrameNumber / this.totalTweeningFrames + this.initialY;
+		this.x = this.totalChangeInX * this.currentFrameNumber / this.totalTweeningFrames + this.initialX;
+		this.y = this.totalChangeInY * this.currentFrameNumber / this.totalTweeningFrames + this.initialY;
 
 		this.currentFrameNumber++;
 
@@ -54,31 +54,41 @@ function sceneryView (x, y, tweeningDuration)
 
 	this.getNextPosition_QuadraticTween = function (targetX, targetY, animationRequest)
 	{
-		if (this.currentFrameNumber == 1)
+		if (this.currentFrameNumber == 0)
 		{
 			this.initialX = this.x;
 			this.initialY = this.y;
 
-			this.changeInX = targetX - this.initialX;
-			this.changeInY = targetY - this.initialY;
+			this.totalChangeInX = targetX - this.initialX;
+			this.totalChangeInY = targetY - this.initialY;
 		}
 
-		this.x = this.changeInX * this.currentFrameNumber / this.totalTweeningFrames + this.initialX;
-		this.y = this.changeInY * this.currentFrameNumber / this.totalTweeningFrames + this.initialY;
+		this.x = Math.easeInOutQuad( this.currentFrameNumber, this.initialX, this.totalChangeInX, this.totalTweeningFrames);
+		this.y = Math.easeInOutQuad( this.currentFrameNumber, this.initialY, this.totalChangeInY, this.totalTweeningFrames);
 
 		this.currentFrameNumber++;
 
 		if (this.currentFrameNumber > this.totalTweeningFrames)
 		{
 			window.cancelRequestAnimationFrame(animationRequest);
-			this.currentFrameNumber = 1;
+			this.currentFrameNumber = 0;
 		}
 
 		return {updatedX: this.x, updatedY: this.y};
 	};
-
-
 };
+
+Math.easeInOutQuad = function ( time, begin, change, duration)
+{
+	var fractionOfHalfTweenCompleted = time / (duration / 2);
+
+	// If we're in the first half of the tween, use quadratic ease-in
+	if (fractionOfHalfTweenCompleted < 1)
+		return ((change / 2) * fractionOfHalfTweenCompleted * fractionOfHalfTweenCompleted + begin);
+	else
+		return ((-change / 2) * ((--fractionOfHalfTweenCompleted) * (fractionOfHalfTweenCompleted - 2) - 1) + begin);
+};
+
 
 
 

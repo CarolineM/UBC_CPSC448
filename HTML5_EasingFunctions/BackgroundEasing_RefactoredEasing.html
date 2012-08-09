@@ -70,7 +70,7 @@
 						{
 							animationRequest = window.requestAnimationFrame(drawFrame, canvas);
 
-							var newPosition = currentView.getNextPosition_LinearTween(targetX, targetY, animationRequest);
+							var newPosition = currentView.getNextPosition_QuadraticTween(targetX, targetY, animationRequest);
 
 							context.drawImage(image, newPosition.updatedX, newPosition.updatedY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
 						}());

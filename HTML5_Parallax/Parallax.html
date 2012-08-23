@@ -1,0 +1,100 @@
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title>Parallax</title>
+	</head>
+	<link rel="stylesheet" href="Parallax.css">
+	<body>
+		<canvas id="canvas2" width="640" height="480"></canvas>
+		<canvas id="canvas1" width="640" height="480"></canvas>
+		<canvas id="canvas0" width="640" height="480"></canvas>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="utils.js"></script>
+		<script src="Parallax.js"></script>
+		<script src="BackgroundEasing_RefactoredEasing.js"></script>
+		<script>
+			$(document).ready(function() 
+			{
+				var canvas2 = document.getElementById('canvas2'),
+					canvas1 = document.getElementById('canvas1'),
+					canvas0 = document.getElementById('canvas0'),
+					context2 = canvas2.getContext('2d'),
+					context1 = canvas1.getContext('2d'), 
+					context0 = canvas0.getContext('2d'),
+					image2 = new Image(),
+					image1 = new Image(),
+					image0 = new Image(),
+					currentView0 = new sceneryView(image0.width/2 - canvas0.width/2, image0.height/2 - canvas0.height/2, TWEENING_DURATION),
+					currentView1 = new sceneryView(image1.width/2 - canvas1.width/2, image1.height/2 - canvas1.height/2, TWEENING_DURATION),
+					currentView2 = new sceneryView(image2.width/2 - canvas2.width/2, image2.height/2 - canvas2.height/2, TWEENING_DURATION),
+					animationRequest,
+					TWEENING_DURATION = 100;
+
+				image2.src = "assets/gamesession_foreground.gif";
+				image1.src = "assets/gamesession_midground.gif";
+				image0.src = "assets/gamesession_background.gif";
+
+				canvas2.addEventListener('mousedown', translateScenery, false);
+
+				$(image2).load(function() {
+					context2.drawImage(image2, image2.width/2 - canvas2.width/2, image2.height/2 - canvas2.height/2, canvas2.width, canvas2.height, 0, 0, canvas2.width, canvas2.height);
+				});
+
+				$(image1).load(function() {
+					context1.drawImage(image1, image1.width/2 - canvas1.width/2, image1.height/2 - canvas1.height/2, canvas1.width, canvas1.height, 0, 0, canvas1.width, canvas1.height);
+				});
+
+				$(image0).load(function() {
+					context0.drawImage(image0, image0.width/2 - canvas0.width/2, image0.height/2 - canvas0.height/2, canvas0.width, canvas0.height, 0, 0, canvas0.width, canvas0.height);
+				});
+
+
+				function translateScenery(event)
+				{
+					var absolutePosition = $('#canvas1').offset();
+					console.log("here");
+					if (animationRequest)
+					{
+						window.cancelRequestAnimationFrame(animationRequest);
+						currentView.currentFrameNumber = 0;
+					}
+
+					// viewRelativeMousePositions take the CURRENT top-left point of
+					// the view to be (0,0).  
+					var viewRelativeMousePositionX = Math.floor(event.x - absolutePosition.left);
+					var viewRelativeMousePositionY = Math.floor(event.y - absolutePosition.top);
+
+					// We want the point we clicked to be the CENTER of the new view (not the top left)
+					var targetX = viewRelativeMousePositionX - canvas1.width/2 + currentView1.x;
+					var targetY = viewRelativeMousePositionY - canvas1.height/2 + currentView1.y;
+
+					// Limits for targetX and targetY so we don't draw outside the bounds of the image
+					var viewRightLimit = image1.width - canvas1.width,
+						viewLeftLimit = 0,
+						viewTopLimit = 0,
+						viewBottomLimit = image1.height - canvas1.height;
+
+					// Check to see if targetX/targetY are trying to draw outside the bounds of the image
+					if (targetX >= viewRightLimit)
+						targetX = viewRightLimit - 1;
+					if (targetX < viewLeftLimit)
+						targetX = viewLeftLimit;
+					if (targetY >= viewBottomLimit)
+						targetY = viewBottomLimit - 1;
+					if (targetY < viewTopLimit)
+						targetY = viewTopLimit;
+
+
+					(function drawFrame () 
+					{
+						animationRequest = window.requestAnimationFrame(drawFrame, canvas1);
+
+						var newPosition = currentView.getNextPosition_QuadraticTween(targetX, targetY, animationRequest);
+
+						context.drawImage(image1, newPosition.updatedX, newPosition.updatedY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+					}());
+				}
+			});	
+		</script>
+	</body>
+</html>

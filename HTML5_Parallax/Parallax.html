@@ -13,6 +13,7 @@
 		<script src="Parallax.js"></script>
 		<script src="BackgroundEasing_RefactoredEasing.js"></script>
 		<script>
+
 			$(document).ready(function() 
 			{
 				var canvas2 = document.getElementById('canvas2'),
@@ -24,11 +25,13 @@
 					image2 = new Image(),
 					image1 = new Image(),
 					image0 = new Image(),
-					currentView0 = new sceneryView(image0.width/2 - canvas0.width/2, image0.height/2 - canvas0.height/2, TWEENING_DURATION),
-					currentView1 = new sceneryView(image1.width/2 - canvas1.width/2, image1.height/2 - canvas1.height/2, TWEENING_DURATION),
-					currentView2 = new sceneryView(image2.width/2 - canvas2.width/2, image2.height/2 - canvas2.height/2, TWEENING_DURATION),
-					animationRequest,
-					TWEENING_DURATION = 100;
+					currentView0,
+					currentView1,
+					currentView2,
+					TWEENING_DURATION = 100,
+					animationRequest;
+
+				var parallaxHelper = new parallaxOffset(5, 1, 5, 10);
 
 				image2.src = "assets/gamesession_foreground.gif";
 				image1.src = "assets/gamesession_midground.gif";
@@ -38,25 +41,31 @@
 
 				$(image2).load(function() {
 					context2.drawImage(image2, image2.width/2 - canvas2.width/2, image2.height/2 - canvas2.height/2, canvas2.width, canvas2.height, 0, 0, canvas2.width, canvas2.height);
+
+					currentView2 = new sceneryView(image2.width/2 - canvas2.width/2, image2.height/2 - canvas2.height/2, TWEENING_DURATION);
 				});
 
 				$(image1).load(function() {
 					context1.drawImage(image1, image1.width/2 - canvas1.width/2, image1.height/2 - canvas1.height/2, canvas1.width, canvas1.height, 0, 0, canvas1.width, canvas1.height);
+
+					currentView1 = new sceneryView(image1.width/2 - canvas1.width/2, image1.height/2 - canvas1.height/2, TWEENING_DURATION);
 				});
 
 				$(image0).load(function() {
 					context0.drawImage(image0, image0.width/2 - canvas0.width/2, image0.height/2 - canvas0.height/2, canvas0.width, canvas0.height, 0, 0, canvas0.width, canvas0.height);
-				});
 
+					currentView0 = new sceneryView(image0.width/2 - canvas0.width/2, image0.height/2 - canvas0.height/2, TWEENING_DURATION)
+				});
 
 				function translateScenery(event)
 				{
-					var absolutePosition = $('#canvas1').offset();
-					console.log("here");
+					var absolutePosition = $('#canvas2').offset();
 					if (animationRequest)
 					{
 						window.cancelRequestAnimationFrame(animationRequest);
-						currentView.currentFrameNumber = 0;
+						currentView0.currentFrameNumber = 0;
+						currentView1.currentFrameNumber = 0;
+						currentView2.currentFrameNumber = 0;
 					}
 
 					// viewRelativeMousePositions take the CURRENT top-left point of
@@ -64,17 +73,26 @@
 					var viewRelativeMousePositionX = Math.floor(event.x - absolutePosition.left);
 					var viewRelativeMousePositionY = Math.floor(event.y - absolutePosition.top);
 
-					// We want the point we clicked to be the CENTER of the new view (not the top left)
-					var targetX = viewRelativeMousePositionX - canvas1.width/2 + currentView1.x;
-					var targetY = viewRelativeMousePositionY - canvas1.height/2 + currentView1.y;
+					// We want the point we clicked to be the new focal point
+					var focalTargetX = viewRelativeMousePositionX - canvas2.width/2 + currentView2.x;
+					var focalTargetY = viewRelativeMousePositionY - canvas2.height/2 + currentView2.y;
 
+					console.log("currentView2.x: " + currentView2.x);
+					console.log("currentView2.y: " + currentView2.y);
+
+					//console.log("focalTargetX: " + focalTargetX);
+					//console.log("focalTargetY: " + focalTargetY);
+
+					var results = parallaxHelper.calculate_PerLayerTargetXY(focalTargetX, focalTargetY, currentView0, currentView1, currentView2);
+
+					/*
 					// Limits for targetX and targetY so we don't draw outside the bounds of the image
 					var viewRightLimit = image1.width - canvas1.width,
 						viewLeftLimit = 0,
 						viewTopLimit = 0,
 						viewBottomLimit = image1.height - canvas1.height;
 
-					// Check to see if targetX/targetY are trying to draw outside the bounds of the image
+					// Check to see if targetX/targetY for ANY of the layers are outside the bounds of the image
 					if (targetX >= viewRightLimit)
 						targetX = viewRightLimit - 1;
 					if (targetX < viewLeftLimit)
@@ -83,15 +101,26 @@
 						targetY = viewBottomLimit - 1;
 					if (targetY < viewTopLimit)
 						targetY = viewTopLimit;
-
+					*/
 
 					(function drawFrame () 
 					{
-						animationRequest = window.requestAnimationFrame(drawFrame, canvas1);
+						animationRequest = window.requestAnimationFrame(drawFrame, canvas0);
 
-						var newPosition = currentView.getNextPosition_QuadraticTween(targetX, targetY, animationRequest);
+						var newPosition0 = currentView0.getNextPosition_QuadraticTween(results.layer0X, results.layer0Y, animationRequest);
 
-						context.drawImage(image1, newPosition.updatedX, newPosition.updatedY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+						var newPosition1 = currentView1.getNextPosition_QuadraticTween(results.layer1X, results.layer1Y, animationRequest);
+
+						var newPosition2 = currentView2.getNextPosition_QuadraticTween(results.layer2X, results.layer2Y, animationRequest);
+
+						context0.drawImage(image0, newPosition0.updatedX, newPosition0.updatedY, canvas0.width, canvas0.height, 0, 0, canvas0.width, canvas0.height);
+
+						context1.drawImage(image1, newPosition1.updatedX, newPosition1.updatedY, canvas1.width, canvas1.height, 0, 0, canvas1.width, canvas1.height);
+
+						context2.drawImage(image2, newPosition2.updatedX, newPosition2.updatedY, canvas2.width, canvas2.height, 0, 0, canvas2.width, canvas2.height);
+
+						//console.log("updatedX0: " + newPosition0.updatedX);
+						//console.log("updatedY0: " + newPosition0.updatedY);
 					}());
 				}
 			});	

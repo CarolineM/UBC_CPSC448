@@ -1,9 +1,7 @@
 canvas {
 	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin-top: -320px;
-	margin-left: -320px;
+	top: 20;
+	left: 20;
 	box-shadow: 5px 5px 8px #555555;
 }
 

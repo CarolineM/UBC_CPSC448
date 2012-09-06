@@ -31,7 +31,7 @@
 					TWEENING_DURATION = 100,
 					animationRequest;
 
-				var parallaxHelper = new parallaxOffset(5, 1, 5, 10);
+				var parallaxHelper = new parallaxOffset(11, 1, 5, 10);
 
 				image2.src = "assets/gamesession_foreground.gif";
 				image1.src = "assets/gamesession_midground.gif";
@@ -69,43 +69,39 @@
 					}
 
 					// viewRelativeMousePositions take the CURRENT top-left point of
-					// the view to be (0,0).  
 					var viewRelativeMousePositionX = Math.floor(event.x - absolutePosition.left);
 					var viewRelativeMousePositionY = Math.floor(event.y - absolutePosition.top);
 
 					// We want the point we clicked to be the new focal point
 					var focalTargetX = viewRelativeMousePositionX - canvas2.width/2 + currentView2.x;
 					var focalTargetY = viewRelativeMousePositionY - canvas2.height/2 + currentView2.y;
-
-					console.log("currentView2.x: " + currentView2.x);
-					console.log("currentView2.y: " + currentView2.y);
-
-					//console.log("focalTargetX: " + focalTargetX);
-					//console.log("focalTargetY: " + focalTargetY);
-
-					var results = parallaxHelper.calculate_PerLayerTargetXY(focalTargetX, focalTargetY, currentView0, currentView1, currentView2);
-
-					/*
+					
 					// Limits for targetX and targetY so we don't draw outside the bounds of the image
-					var viewRightLimit = image1.width - canvas1.width,
+					var viewRightLimit = image2.width - canvas2.width,
 						viewLeftLimit = 0,
 						viewTopLimit = 0,
-						viewBottomLimit = image1.height - canvas1.height;
+						viewBottomLimit = image2.height - canvas2.height;
 
 					// Check to see if targetX/targetY for ANY of the layers are outside the bounds of the image
-					if (targetX >= viewRightLimit)
-						targetX = viewRightLimit - 1;
-					if (targetX < viewLeftLimit)
-						targetX = viewLeftLimit;
-					if (targetY >= viewBottomLimit)
-						targetY = viewBottomLimit - 1;
-					if (targetY < viewTopLimit)
-						targetY = viewTopLimit;
-					*/
+					if (focalTargetX >= viewRightLimit)
+						focalTargetX = viewRightLimit - 1;
+					if (focalTargetX < viewLeftLimit)
+						focalTargetX = viewLeftLimit;
+					if (focalTargetY >= viewBottomLimit)
+						focalTargetY = viewBottomLimit - 1;
+					if (focalTargetY < viewTopLimit)
+						focalTargetY = viewTopLimit;
+					
+
+					var results = parallaxHelper.calculate_PerLayerTargetXY(focalTargetX, focalTargetY, currentView0, currentView1, currentView2);
 
 					(function drawFrame () 
 					{
 						animationRequest = window.requestAnimationFrame(drawFrame, canvas0);
+
+						canvas0.width = canvas0.width;
+						canvas1.width = canvas1.width;
+						canvas2.width = canvas2.width;
 
 						var newPosition0 = currentView0.getNextPosition_QuadraticTween(results.layer0X, results.layer0Y, animationRequest);
 
@@ -118,9 +114,6 @@
 						context1.drawImage(image1, newPosition1.updatedX, newPosition1.updatedY, canvas1.width, canvas1.height, 0, 0, canvas1.width, canvas1.height);
 
 						context2.drawImage(image2, newPosition2.updatedX, newPosition2.updatedY, canvas2.width, canvas2.height, 0, 0, canvas2.width, canvas2.height);
-
-						//console.log("updatedX0: " + newPosition0.updatedX);
-						//console.log("updatedY0: " + newPosition0.updatedY);
 					}());
 				}
 			});	

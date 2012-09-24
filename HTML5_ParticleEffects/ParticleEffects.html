@@ -1,0 +1,120 @@
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title>2DParticles</title>
+	<style type="text/css">
+		body {
+			background-color: #FFFFFF;
+			margin: 0px;
+			overflow: hidden;
+		}
+	</style>
+	</head>
+	<body>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="ImageParticle.js"></script>
+		<script src="utils.js"></script>
+		<script>
+			var SCREEN_WIDTH = window.innerWidth,
+				SCREEN_HEIGHT = window.innerHeight,
+				HALF_WIDTH = window.innerWidth /2,
+				HALF_HEIGHT = window.innerHeight /2,
+				canvas = document.createElement('canvas'),
+				context = canvas.getContext('2d'),
+				mouseX = HALF_WIDTH,
+				mouseY = HALF_HEIGHT*1.5, 
+				mouseDown = false,
+				particles = [],
+				MAX_PARTICLES = 100,
+				particleImage = new Image();
+
+				particleImage.src = "assets/ParticleSmoke.png";
+				container = document.createElement('div');
+				document.body.appendChild(container);
+				container.appendChild(canvas);
+				canvas.width = SCREEN_WIDTH;
+				canvas.height = SCREEN_HEIGHT;
+
+				document.addEventListener('mousemove', onMouseMove, false);
+				document.addEventListener('mousedown', onMouseDown, false);
+				document.addEventListener('mouseup', onMouseUp, false);
+
+				function onMouseMove(event) 
+				{
+					event.preventDefault();
+
+					mouseX = event.clientX;
+					mouseY = event.clientY;
+				}
+
+				function onMouseDown(event) 
+				{
+					mouseDown = true;
+				}
+
+				function onMouseUp(event) 
+				{
+					mouseDown = false;
+				}
+
+				(function drawFrame () 
+				{
+					var fps = 30;
+					draw();
+
+					function draw()
+					{
+						var handleToSetInterval = setTimeout(function() 
+						{
+							animationRequest = window.requestAnimationFrame(drawFrame, canvas);
+
+							makeParticle(1);
+
+							context.fillStyle="rgb(0,0,0)";
+							context.fillRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+							for (var j=0; j<particles.length; j++)
+							{
+								var particle = particles[j];
+								particle.render(context);
+								particle.update();
+							}
+
+							while(particles.length > MAX_PARTICLES)
+								particles.shift();
+						}, 1000/fps);
+					};
+				}());
+
+				function makeParticle(particleCount)
+				{
+					for (var i=0; i < particleCount; i++)
+					{
+						// make a particle where the mouse is
+						var particle = new ImageParticle(particleImage, mouseX, mouseY);
+
+						particle.velX = randomRange(-0.5, 0.5);
+						particle.velY = randomRange(0.1,0.2);
+						particle.size = randomRange(0.1,0.2);
+						particle.maxSize = 1.5;
+						particle.alpha = randomRange(0.2, 0.3);
+						particle.gravity = -0.2;
+						particle.shimmer = false;
+						particle.drag = 0.96;
+						particle.shrink = 1.04;
+						particle.fade = 0.005;
+
+						if(mouseDown)
+						{
+							particle.size *= 2;
+							particle.fade *= 0.8;
+						}
+
+						particles.push(particle);
+					}
+				}
+
+			
+		</script>
+	</body>
+</html>

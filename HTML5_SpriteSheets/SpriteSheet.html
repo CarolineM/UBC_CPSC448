@@ -1,0 +1,98 @@
+
+<html>
+	<head>
+	<meta charset="utf-8">
+	<title>Spritesheet Example</title>
+	</head>
+	<link rel="stylesheet" href="SpriteSheet.css">
+	<body>
+		<canvas id="canvas" width="400" height="400"></canvas>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="utils.js"></script>
+		<script src="SpriteEasing.js"></script>
+		<script>
+			$(document).ready(function() 
+			{
+				var canvas = $("#canvas"),
+					spritesheet = new Image(),
+					context = canvas.get(0).getContext('2d'),
+					canvasWidth = canvas.width,
+					canvasHeight = canvas.height,
+					TWEENING_DURATION = 50,
+					animationRequest,
+					handleToSetInterval;
+
+				spritesheet.src = "assets/HappyCloud.PNG";
+
+				var indexArray = [0, 1, 2, 3],
+					index = 0;
+
+				context.fillRect(0, 0, canvas.width(), canvas.height());
+
+
+				$(spritesheet).load(function() 
+				{
+
+					canvas.get(0).addEventListener('mousedown', translateSprite, false);
+
+					var mySprite = new spriteView(0, 0, TWEENING_DURATION);
+
+					function translateSprite(event)
+					{
+						var absolutePosition = canvas.offset();
+						//console.log(absolutePosition.left);
+						//console.log(absolutePosition.top);
+						//console.log(event.x);
+						//console.log(event.y);
+
+						if (animationRequest)
+						{
+							window.cancelRequestAnimationFrame(animationRequest);
+							clearTimeout(handleToSetInterval);
+
+							mySprite.currentFrameNumber = 0;
+						}
+
+						var viewRelativeMousePositionX = Math.floor(event.x - absolutePosition.left);
+						var viewRelativeMousePositionY = Math.floor(event.y - absolutePosition.top);
+
+						var targetX = viewRelativeMousePositionX - 25;
+						var targetY = viewRelativeMousePositionY - 25;
+						//console.log(targetX);
+						//console.log(targetY);
+
+						(function drawFrame () 
+						{
+							//context.save();
+							var fps = 10;	
+							draw();
+
+							function draw() 
+							{
+								handleToSetInterval = setTimeout(function() 
+								{
+									animationRequest = window.requestAnimationFrame(draw, canvas);
+
+									//context.restore();
+									context.fillRect(0, 0, canvas.width(), canvas.height());
+
+									var newPosition = mySprite.getNextPosition_QuadraticTween(targetX, targetY, animationRequest);
+
+									// Drawing code goes here
+									context.drawImage(spritesheet, index*50, 0, 50, 50, newPosition.updatedX, newPosition.updatedY, 50, 50);
+
+									index++;
+									if (index > 3)
+										index = 0;
+
+								}, 1000 / fps);	
+							};
+						}());
+					};
+
+				});
+			});
+		
+		</script>
+	</body>
+</html>
